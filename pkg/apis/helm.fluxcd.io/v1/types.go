@@ -50,3 +50,10 @@ type OptionalSecretKeySelector struct {
 	// +optional
 	Optional bool `json:"optional,omitempty"`
 }
+
+type AppInfo struct {
+	AppId        string `json:"appId,omitempty"`
+	ComponentId  string `json:"componentId,omitempty"`
+	LogCollect   bool   `json:"logCollect"`
+	IstioEnabled bool   `json:"istioEnabled"`
+}

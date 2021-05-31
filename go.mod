@@ -1,4 +1,4 @@
-module github.com/fluxcd/helm-operator
+module github.com/wujiangfa-xlauncher/helm-operator
 
 go 1.14
 

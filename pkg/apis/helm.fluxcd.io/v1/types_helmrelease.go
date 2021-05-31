@@ -437,6 +437,7 @@ func (in *HelmValues) DeepCopyInto(out *HelmValues) {
 }
 
 type HelmReleaseSpec struct {
+	AppInfo
 	HelmVersion `json:"helmVersion,omitempty"`
 	// +kubebuilder:validation:Required
 	ChartSource `json:"chart"`

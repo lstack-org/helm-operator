@@ -4,9 +4,9 @@ nameOverride: ""
 fullnameOverride: ""
 
 image:
-  repository: docker.io/fluxcd/helm-operator
-  tag: 1.2.0
-  pullPolicy: IfNotPresent
+  repository: registry.cn-hangzhou.aliyuncs.com/launcher-agent-only/helm-operator
+  tag: v1
+  pullPolicy: Always
   pullSecret:
 
 service:
@@ -32,7 +32,7 @@ workers: 4
 
 # Helm versions supported by this operator instance
 helm:
-  versions: "v2,v3"
+  versions: "v3"
 
 # Tiller settings
 # If a hostname or IP is given here, that will be combined with the

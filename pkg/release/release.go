@@ -280,6 +280,12 @@ func (r *Release) determineSyncAction(client helm.Client, hr *apiV1.HelmRelease,
 func (r *Release) run(logger log.Logger, client helm.Client, action action, hr *apiV1.HelmRelease, curRel *helm.Release,
 	chart chart, values []byte) error {
 
+	if hr != nil && curRel != nil {
+		err := labelResources(hr, curRel)
+		if err != nil {
+			fmt.Printf("failed to label release resources: %w\n", err)
+		}
+	}
 	var newRel *helm.Release
 	errs := errCollection{}
 next:

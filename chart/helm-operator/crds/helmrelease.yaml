@@ -126,6 +126,12 @@ spec:
               description: Force will mark this Helm release to `--force` upgrades.
                 This forces the resource updates through delete/recreate if needed.
               type: boolean
+            appId:
+              description: appId for labelSelector
+              type: string
+            componentId:
+              description: componentId for labelSelector
+              type: string
             helmVersion:
               description: 'HelmVersion is the version of Helm to target. If not supplied,
                 the lowest _enabled Helm version_ will be targeted. Valid HelmVersion
