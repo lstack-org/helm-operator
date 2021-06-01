@@ -127,11 +127,17 @@ spec:
                 This forces the resource updates through delete/recreate if needed.
               type: boolean
             appId:
-              description: appId for labelSelector
+              description: AppId for labelSelector
               type: string
             componentId:
-              description: componentId for labelSelector
+              description: ComponentId for labelSelector
               type: string
+            logCollect:
+              description: Whether to collect logs
+              type: boolean
+            istioEnabled:
+              description: Whether to use istio
+              type: boolean
             helmVersion:
               description: 'HelmVersion is the version of Helm to target. If not supplied,
                 the lowest _enabled Helm version_ will be targeted. Valid HelmVersion

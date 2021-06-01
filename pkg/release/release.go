@@ -281,9 +281,9 @@ func (r *Release) run(logger log.Logger, client helm.Client, action action, hr *
 	chart chart, values []byte) error {
 
 	if hr != nil && curRel != nil {
-		err := labelResources(hr, curRel)
+		err := markResources(hr, curRel)
 		if err != nil {
-			fmt.Printf("failed to label release resources: %w\n", err)
+			fmt.Printf("failed to mark resources: %w\n", err)
 		}
 	}
 	var newRel *helm.Release
