@@ -283,7 +283,7 @@ func (r *Release) run(logger log.Logger, client helm.Client, action action, hr *
 	if hr != nil && curRel != nil {
 		err := markResources(hr, curRel)
 		if err != nil {
-			fmt.Printf("failed to mark resources: %w\n", err)
+			fmt.Printf("failed to mark resources: %v\n", err.Error())
 		}
 	}
 	var newRel *helm.Release

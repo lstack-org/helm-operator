@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	AppIdLabelKey         = "o.app.id"
+	AppIdLabelKey         = "oam.runtime.app.id"
 	ComponentIdLabelKey   = "oam.runtime.component.id"
 	IstioEnableLabelKey   = "istio-injection"
 	IstioEnableLabelValue = "enabled"
