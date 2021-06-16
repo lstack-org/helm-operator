@@ -1,15 +1,23 @@
 package release
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"helm.sh/helm/v3/pkg/postrender"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/klog"
 	"path/filepath"
+	"sigs.k8s.io/yaml"
+	"strconv"
 	"time"
 
 	"github.com/fluxcd/flux/pkg/git"
 	"github.com/go-kit/kit/log"
-
-	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 
 	apiV1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
 	"github.com/fluxcd/helm-operator/pkg/chartsync"
@@ -17,6 +25,8 @@ import (
 	"github.com/fluxcd/helm-operator/pkg/helm"
 	helmV3 "github.com/fluxcd/helm-operator/pkg/helm/v3"
 	"github.com/fluxcd/helm-operator/pkg/status"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
 // Config holds the configuration for releases.
@@ -279,13 +289,6 @@ func (r *Release) determineSyncAction(client helm.Client, hr *apiV1.HelmRelease,
 // run starts on the given action and loops through the release cycle.
 func (r *Release) run(logger log.Logger, client helm.Client, action action, hr *apiV1.HelmRelease, curRel *helm.Release,
 	chart chart, values []byte) error {
-
-	if hr != nil && curRel != nil {
-		err := markResources(hr, curRel)
-		if err != nil {
-			fmt.Printf("failed to mark resources: %v\n", err.Error())
-		}
-	}
 	var newRel *helm.Release
 	errs := errCollection{}
 next:
@@ -463,6 +466,140 @@ func (r *Release) dryRunCompare(client helm.Client, rel *helm.Release, hr *apiV1
 	return
 }
 
+const (
+	AppIdLabelKey         = "oam.runtime.app.id"
+	ComponentIdLabelKey   = "oam.runtime.component.id"
+	IstioEnableLabelKey   = "istio-injection"
+	IstioEnableLabelValue = "enabled"
+	LogCollectAnnotateKey = "logCollect"
+)
+
+var (
+	statefulsetGroupVersionResource = schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "statefulsets"}
+	deploymentGroupVersionResource  = schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
+	matchLabelsPath                 = []string{"spec", "selector", "matchLabels"}
+	templateLabelsPath              = []string{"spec", "template", "metadata", "labels"}
+)
+
+type appManagerPostRenderer func(renderedManifests *bytes.Buffer) (modifiedManifests *bytes.Buffer, err error)
+
+func (a appManagerPostRenderer) Run(renderedManifests *bytes.Buffer) (modifiedManifests *bytes.Buffer, err error) {
+	return a(renderedManifests)
+}
+
+func (r *Release) istioInject(hr *apiV1.HelmRelease, target unstructured.Unstructured) unstructured.Unstructured {
+
+	matchLabels, _, _ := unstructured.NestedStringMap(target.Object, matchLabelsPath...)
+	matchLabels[AppIdLabelKey] = hr.Spec.AppId
+	matchLabels[ComponentIdLabelKey] = hr.Spec.ComponentId
+	matchLabels[IstioEnableLabelKey] = IstioEnableLabelValue
+	_ = unstructured.SetNestedStringMap(target.Object, matchLabels, matchLabelsPath...)
+
+	templateLabels, _, _ := unstructured.NestedStringMap(target.Object, templateLabelsPath...)
+	templateLabels[AppIdLabelKey] = hr.Spec.AppId
+	templateLabels[ComponentIdLabelKey] = hr.Spec.ComponentId
+	templateLabels[IstioEnableLabelKey] = IstioEnableLabelValue
+	_ = unstructured.SetNestedStringMap(target.Object, templateLabels, templateLabelsPath...)
+
+	return target
+}
+
+func (r *Release) istioInjectHandle(hr *apiV1.HelmRelease, client dynamic.Interface, resource schema.GroupVersionResource, target unstructured.Unstructured, istioInject bool) (unstructured.Unstructured, error) {
+	current, err := client.Resource(resource).Get(target.GetName(), metav1.GetOptions{})
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			return target, err
+		} else {
+			//工作负载不存在、istio注入
+			if istioInject {
+				target = r.istioInject(hr, target)
+			}
+			return target, nil
+		}
+
+	} else {
+		templateLabels, _, _ := unstructured.NestedStringMap(current.Object, templateLabelsPath...)
+		value, ok := templateLabels[IstioEnableLabelKey]
+		//开启服务网格
+		if istioInject {
+			//若当前已部署的工作负载不存在istio注入标签，则删除当前已部署的工作负载
+			if !ok || value != IstioEnableLabelValue {
+				err := client.Resource(resource).Delete(target.GetName(), &metav1.DeleteOptions{})
+				if err != nil {
+					return target, err
+				}
+			}
+			return r.istioInject(hr, target), nil
+		} else {
+			//若关闭服务网格是，当前已部署的工作负载中有istio注入标签，则删除当前已部署的工作负载
+			if ok && value == IstioEnableLabelValue {
+				err := client.Resource(resource).Delete(target.GetName(), &metav1.DeleteOptions{})
+				if err != nil {
+					return target, err
+				}
+			}
+			return target, nil
+		}
+	}
+}
+
+func (r *Release) getAppManagerPostRenderer(hr *apiV1.HelmRelease) postrender.PostRenderer {
+	return appManagerPostRenderer(func(renderedManifests *bytes.Buffer) (modifiedManifests *bytes.Buffer, err error) {
+		config, err := clientcmd.BuildConfigFromFlags("", "")
+		if err != nil {
+			klog.Error(err.Error())
+			return renderedManifests, nil
+		}
+
+		dynamicClient, err := dynamic.NewForConfig(config)
+		if err != nil {
+			klog.Error(err.Error())
+			return renderedManifests, nil
+		}
+
+		helmReleaseSpec := hr.Spec
+		unstructuredList := releaseManifestToUnstructured(renderedManifests.String())
+		modifiedManifests = bytes.NewBuffer([]byte{})
+		for _, u := range unstructuredList {
+
+			labels := u.GetLabels()
+			labels[AppIdLabelKey] = helmReleaseSpec.AppId
+			labels[ComponentIdLabelKey] = helmReleaseSpec.ComponentId
+			u.SetLabels(labels)
+
+			switch u.GetKind() {
+			case "StatefulSet", "Deployment":
+				annotations := u.GetAnnotations()
+				annotations[LogCollectAnnotateKey] = strconv.FormatBool(helmReleaseSpec.LogCollect)
+				u.SetAnnotations(annotations)
+			}
+
+			switch u.GetKind() {
+			case "StatefulSet":
+				istioInjectHandled, err := r.istioInjectHandle(hr, dynamicClient, statefulsetGroupVersionResource, u, helmReleaseSpec.IstioEnabled)
+				if err != nil {
+					klog.Error(err.Error())
+				}
+				u = istioInjectHandled
+			case "Deployment":
+				istioInjectHandled, err := r.istioInjectHandle(hr, dynamicClient, deploymentGroupVersionResource, u, helmReleaseSpec.IstioEnabled)
+				if err != nil {
+					klog.Error(err.Error())
+				}
+				u = istioInjectHandled
+			}
+
+			modifiedManifests.WriteString("---\n")
+			marshal, _ := yaml.Marshal(u.Object)
+			modifiedManifests.Write(marshal)
+			modifiedManifests.WriteString("\n")
+		}
+		klog.Info(modifiedManifests.String())
+		return modifiedManifests, nil
+	})
+
+}
+
 // install performs an installation with the given HelmRelease,
 // chart, and values while recording the phases on the HelmRelease.
 // It returns the release result or an error.
@@ -480,6 +617,7 @@ func (r *Release) install(client helm.Client, hr *apiV1.HelmRelease, chart chart
 		MaxHistory:        hr.GetMaxHistory(),
 		Wait:              hr.GetWait(),
 		DisableValidation: hr.Spec.DisableOpenAPIValidation,
+		PostRenderer:      r.getAppManagerPostRenderer(hr),
 	})
 	if err != nil {
 		status.SetStatusPhase(r.hrClient.HelmReleases(hr.Namespace), hr, apiV1.HelmReleasePhaseDeployFailed)
@@ -528,6 +666,7 @@ func (r *Release) upgrade(client helm.Client, hr *apiV1.HelmRelease, chart chart
 		MaxHistory:        hr.GetMaxHistory(),
 		Wait:              hr.GetWait(),
 		DisableValidation: hr.Spec.DisableOpenAPIValidation,
+		PostRenderer:      r.getAppManagerPostRenderer(hr),
 	})
 	if err != nil {
 		status.SetStatusPhase(r.hrClient.HelmReleases(hr.Namespace), hr, apiV1.HelmReleasePhaseDeployFailed)
