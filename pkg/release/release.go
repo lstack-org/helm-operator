@@ -8,6 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog"
@@ -504,8 +505,25 @@ func (r *Release) istioInject(hr *apiV1.HelmRelease, target unstructured.Unstruc
 	return target
 }
 
+func (r *Release) deleteOldRes(client dynamic.Interface, resource schema.GroupVersionResource, namespace, name string) error {
+	err := client.Resource(resource).Namespace(namespace).Delete(name, &metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
+
+	//等待删除彻底成功
+	withTimeout, cancelFunc := context.WithTimeout(context.TODO(), 10*time.Second)
+	wait.UntilWithContext(withTimeout, func(context.Context) {
+		_, err := client.Resource(resource).Namespace(namespace).Get(name, metav1.GetOptions{})
+		if err != nil && errors.IsNotFound(err) {
+			cancelFunc()
+		}
+	}, time.Second)
+	return nil
+}
+
 func (r *Release) istioInjectHandle(hr *apiV1.HelmRelease, client dynamic.Interface, resource schema.GroupVersionResource, target unstructured.Unstructured, istioInject bool) (unstructured.Unstructured, error) {
-	current, err := client.Resource(resource).Get(target.GetName(), metav1.GetOptions{})
+	current, err := client.Resource(resource).Namespace(hr.Namespace).Get(target.GetName(), metav1.GetOptions{})
 	if err != nil {
 		if !errors.IsNotFound(err) {
 			return target, err
@@ -524,16 +542,16 @@ func (r *Release) istioInjectHandle(hr *apiV1.HelmRelease, client dynamic.Interf
 		if istioInject {
 			//若当前已部署的工作负载不存在istio注入标签，则删除当前已部署的工作负载
 			if !ok || value != IstioEnableLabelValue {
-				err := client.Resource(resource).Delete(target.GetName(), &metav1.DeleteOptions{})
+				err := r.deleteOldRes(client, resource, target.GetNamespace(), target.GetName())
 				if err != nil {
 					return target, err
 				}
 			}
 			return r.istioInject(hr, target), nil
 		} else {
-			//若关闭服务网格是，当前已部署的工作负载中有istio注入标签，则删除当前已部署的工作负载
+			//若关闭服务网格时，当前已部署的工作负载中有istio注入标签，则删除当前已部署的工作负载
 			if ok && value == IstioEnableLabelValue {
-				err := client.Resource(resource).Delete(target.GetName(), &metav1.DeleteOptions{})
+				err := r.deleteOldRes(client, resource, target.GetNamespace(), target.GetName())
 				if err != nil {
 					return target, err
 				}
