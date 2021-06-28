@@ -491,12 +491,18 @@ func (a appManagerPostRenderer) Run(renderedManifests *bytes.Buffer) (modifiedMa
 func (r *Release) istioInject(hr *apiV1.HelmRelease, target unstructured.Unstructured) unstructured.Unstructured {
 
 	matchLabels, _, _ := unstructured.NestedStringMap(target.Object, matchLabelsPath...)
+	if matchLabels == nil {
+		matchLabels = make(map[string]string)
+	}
 	matchLabels[AppIdLabelKey] = hr.Spec.AppId
 	matchLabels[ComponentIdLabelKey] = hr.Spec.ComponentId
 	matchLabels[IstioEnableLabelKey] = IstioEnableLabelValue
 	_ = unstructured.SetNestedStringMap(target.Object, matchLabels, matchLabelsPath...)
 
 	templateLabels, _, _ := unstructured.NestedStringMap(target.Object, templateLabelsPath...)
+	if templateLabels == nil {
+		templateLabels = make(map[string]string)
+	}
 	templateLabels[AppIdLabelKey] = hr.Spec.AppId
 	templateLabels[ComponentIdLabelKey] = hr.Spec.ComponentId
 	templateLabels[IstioEnableLabelKey] = IstioEnableLabelValue
@@ -581,6 +587,10 @@ func (r *Release) getAppManagerPostRenderer(hr *apiV1.HelmRelease) postrender.Po
 		for _, u := range unstructuredList {
 
 			labels := u.GetLabels()
+			if labels == nil {
+				labels = make(map[string]string)
+			}
+
 			labels[AppIdLabelKey] = helmReleaseSpec.AppId
 			labels[ComponentIdLabelKey] = helmReleaseSpec.ComponentId
 			u.SetLabels(labels)
@@ -588,6 +598,10 @@ func (r *Release) getAppManagerPostRenderer(hr *apiV1.HelmRelease) postrender.Po
 			switch u.GetKind() {
 			case "StatefulSet", "Deployment":
 				annotations := u.GetAnnotations()
+				if annotations == nil {
+					annotations = make(map[string]string)
+				}
+
 				annotations[LogCollectAnnotateKey] = strconv.FormatBool(helmReleaseSpec.LogCollect)
 				u.SetAnnotations(annotations)
 			}
