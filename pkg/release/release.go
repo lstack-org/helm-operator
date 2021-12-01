@@ -488,15 +488,13 @@ func (a appManagerPostRenderer) Run(renderedManifests *bytes.Buffer) (modifiedMa
 	return a(renderedManifests)
 }
 
-func (r *Release) istioInject(hr *apiV1.HelmRelease, target unstructured.Unstructured) unstructured.Unstructured {
-
+func (r *Release) appInfoInject(hr *apiV1.HelmRelease, target unstructured.Unstructured) unstructured.Unstructured {
 	matchLabels, _, _ := unstructured.NestedStringMap(target.Object, matchLabelsPath...)
 	if matchLabels == nil {
 		matchLabels = make(map[string]string)
 	}
 	matchLabels[AppIdLabelKey] = hr.Spec.AppId
 	matchLabels[ComponentIdLabelKey] = hr.Spec.ComponentId
-	matchLabels[IstioEnableLabelKey] = IstioEnableLabelValue
 	_ = unstructured.SetNestedStringMap(target.Object, matchLabels, matchLabelsPath...)
 
 	templateLabels, _, _ := unstructured.NestedStringMap(target.Object, templateLabelsPath...)
@@ -505,6 +503,24 @@ func (r *Release) istioInject(hr *apiV1.HelmRelease, target unstructured.Unstruc
 	}
 	templateLabels[AppIdLabelKey] = hr.Spec.AppId
 	templateLabels[ComponentIdLabelKey] = hr.Spec.ComponentId
+	_ = unstructured.SetNestedStringMap(target.Object, templateLabels, templateLabelsPath...)
+
+	return target
+}
+
+func (r *Release) istioInject(hr *apiV1.HelmRelease, target unstructured.Unstructured) unstructured.Unstructured {
+
+	matchLabels, _, _ := unstructured.NestedStringMap(target.Object, matchLabelsPath...)
+	if matchLabels == nil {
+		matchLabels = make(map[string]string)
+	}
+	matchLabels[IstioEnableLabelKey] = IstioEnableLabelValue
+	_ = unstructured.SetNestedStringMap(target.Object, matchLabels, matchLabelsPath...)
+
+	templateLabels, _, _ := unstructured.NestedStringMap(target.Object, templateLabelsPath...)
+	if templateLabels == nil {
+		templateLabels = make(map[string]string)
+	}
 	templateLabels[IstioEnableLabelKey] = IstioEnableLabelValue
 	_ = unstructured.SetNestedStringMap(target.Object, templateLabels, templateLabelsPath...)
 
@@ -608,12 +624,14 @@ func (r *Release) getAppManagerPostRenderer(hr *apiV1.HelmRelease) postrender.Po
 
 			switch u.GetKind() {
 			case "StatefulSet":
+				u = r.appInfoInject(hr, u)
 				istioInjectHandled, err := r.istioInjectHandle(hr, dynamicClient, statefulsetGroupVersionResource, u, helmReleaseSpec.IstioEnabled)
 				if err != nil {
 					klog.Error(err.Error())
 				}
 				u = istioInjectHandled
 			case "Deployment":
+				u = r.appInfoInject(hr, u)
 				istioInjectHandled, err := r.istioInjectHandle(hr, dynamicClient, deploymentGroupVersionResource, u, helmReleaseSpec.IstioEnabled)
 				if err != nil {
 					klog.Error(err.Error())
