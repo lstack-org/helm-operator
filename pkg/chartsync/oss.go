@@ -2,12 +2,13 @@ package chartsync
 
 import (
 	"crypto/aes"
-	"crypto/cipher"
 	"encoding/base64"
 	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	v1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-obs/obs"
+	"k8s.io/klog"
+	"os"
 	"path/filepath"
 )
 
@@ -37,7 +38,8 @@ func NewProvider(oss *v1.Oss, base string) (Provider, error) {
 type Provider interface {
 	//DownloadFile 将对象存储中的文件下载到本地
 	//返回文件缓存目录
-	DownloadFile() (string, error)
+	//useCache 表示使用缓存
+	DownloadFile(useCache bool) (string, error)
 	//Endpoint 将region转换为oss endpoint
 	Endpoint(regionId string) string
 }
@@ -52,8 +54,21 @@ type aliImpl struct {
 	base string
 }
 
-func (a *aliImpl) DownloadFile() (string, error) {
-	AckDecode(a.Oss)
+func (a *aliImpl) DownloadFile(useCache bool) (string, error) {
+	cachePath := filepath.Join(a.base, base64.URLEncoding.EncodeToString([]byte(a.Key)))
+	if useCache {
+		klog.Infof("cache used,key: %s,path:%s", a.Key, cachePath)
+		_, err := os.Stat(cachePath)
+		//文件存在
+		if err == nil {
+			return cachePath, nil
+		}
+	}
+
+	err := AckDecode(a.Oss)
+	if err != nil {
+		return "", err
+	}
 	client, err := oss.New(a.Endpoint(a.RegionId), a.AckId, a.AckSecret)
 	if err != nil {
 		return "", ChartUnavailableError{err}
@@ -64,7 +79,6 @@ func (a *aliImpl) DownloadFile() (string, error) {
 		return "", ChartUnavailableError{err}
 	}
 
-	cachePath := filepath.Join(a.base, base64.URLEncoding.EncodeToString([]byte(a.Key)))
 	err = bucket.GetObjectToFile(a.Key, cachePath)
 	if err != nil {
 		return "", ChartUnavailableError{err}
@@ -81,14 +95,25 @@ type huaweiImpl struct {
 	base string
 }
 
-func (h *huaweiImpl) DownloadFile() (string, error) {
-	AckDecode(h.Oss)
+func (h *huaweiImpl) DownloadFile(useCache bool) (string, error) {
+	cachePath := filepath.Join(h.base, base64.URLEncoding.EncodeToString([]byte(h.Key)))
+	if useCache {
+		klog.Infof("cache used,key: %s,path:%s", h.Key, cachePath)
+		_, err := os.Stat(cachePath)
+		//文件存在
+		if err == nil {
+			return cachePath, nil
+		}
+	}
+
+	err := AckDecode(h.Oss)
+	if err != nil {
+		return "", err
+	}
 	client, err := obs.New(h.AckId, h.AckSecret, h.Endpoint(h.RegionId))
 	if err != nil {
 		return "", ChartUnavailableError{err}
 	}
-
-	cachePath := filepath.Join(h.base, base64.URLEncoding.EncodeToString([]byte(h.Key)))
 
 	defer client.Close()
 	_, err = client.DownloadFile(&obs.DownloadFileInput{
@@ -108,42 +133,48 @@ func (h *huaweiImpl) Endpoint(regionId string) string {
 	return fmt.Sprintf("http://obs.%s.myhuaweicloud.com", regionId)
 }
 
-func AckDecode(oss *v1.Oss) {
+func AckDecode(oss *v1.Oss) error {
 	if oss.AckEncrypted {
-		oss.AckId = AesDecrypt(oss.AckId)
-		oss.AckSecret = AesDecrypt(oss.AckSecret)
+		ackId, err := Decrypt(oss.AckId)
+		if err != nil {
+			return err
+		}
+		ackSecret, err := Decrypt(oss.AckSecret)
+		if err != nil {
+			return err
+		}
+
+		oss.AckId = ackId
+		oss.AckSecret = ackSecret
 	}
+	return nil
 }
 
-// AesDecrypt aes解密
-func AesDecrypt(ciphertext string) string {
-	//使用RawURLEncoding 不要使用StdEncoding
-	//不要使用StdEncoding  放在url参数中回导致错误
-	decryptedByte, _ := base64.RawURLEncoding.DecodeString(ciphertext)
-	k := []byte("2367943245267894")
-
-	// 分组密钥
-	block, err := aes.NewCipher(k)
+func Decrypt(encrypted string) (string, error) {
+	defer func() {
+		if err := recover(); err != nil {
+			klog.Error(err)
+		}
+	}()
+	bytes, err := base64.StdEncoding.DecodeString(encrypted)
 	if err != nil {
-		panic(fmt.Sprintf("key 长度必须 16/24/32长度: %s", err.Error()))
+		return "", err
 	}
-	// 获取密钥块的长度
-	blockSize := block.BlockSize()
-	// 加密模式
-	blockMode := cipher.NewCBCDecrypter(block, k[:blockSize])
-	// 创建数组
-	orig := make([]byte, len(decryptedByte))
-	// 解密
-	blockMode.CryptBlocks(orig, decryptedByte)
-	// 去补全码
-	orig = PKCS7UnPadding(orig)
-	return string(orig)
+	k := []byte("2367943245267894")
+	decrypted := AESDecrypt(bytes, k)
+	return string(decrypted), nil
 }
 
-
-// PKCS7UnPadding 去码
-func PKCS7UnPadding(origData []byte) []byte {
-	length := len(origData)
-	unPadding := int(origData[length-1])
-	return origData[:(length - unPadding)]
+func AESDecrypt(encrypted []byte, key []byte) (decrypted []byte) {
+	cipher, _ := aes.NewCipher(key)
+	decrypted = make([]byte, len(encrypted))
+	//
+	for bs, be := 0, cipher.BlockSize(); bs < len(encrypted); bs, be = bs+cipher.BlockSize(), be+cipher.BlockSize() {
+		cipher.Decrypt(decrypted[bs:be], encrypted[bs:be])
+	}
+	trim := 0
+	if len(decrypted) > 0 {
+		trim = len(decrypted) - int(decrypted[len(decrypted)-1])
+	}
+	return decrypted[:trim]
 }

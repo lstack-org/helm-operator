@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"k8s.io/klog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -13,8 +14,16 @@ import (
 	"github.com/fluxcd/helm-operator/pkg/helm"
 )
 
-func DownloadFile(key,base string) (string, error) {
+func DownloadFile(key, base string, useCache bool) (string, error) {
 	cachePath := filepath.Join(base, base64.URLEncoding.EncodeToString([]byte(key)))
+	if useCache {
+		klog.Infof("cache used,key: %s,path:%s", key, cachePath)
+		_, err := os.Stat(cachePath)
+		//文件存在
+		if err == nil {
+			return cachePath, nil
+		}
+	}
 	res, err := http.Get(key)
 	if err != nil {
 		return "", ChartUnavailableError{err}

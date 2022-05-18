@@ -179,10 +179,12 @@ type Oss struct {
 	Bucket        string `json:"bucket"`
 	Key           string `json:"key"`
 	AckEncrypted  bool   `json:"ackEncrypted"`
+	UseCache      bool   `json:"useCache"`
 }
 
 type Customize struct {
-	Key string `json:"key" bson:"key" validate:"required"`
+	Key      string `json:"key"`
+	UseCache bool   `json:"useCache"`
 }
 
 // GitChartSource describes a Helm chart sourced from Git.

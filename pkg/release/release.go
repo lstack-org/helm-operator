@@ -181,7 +181,7 @@ func (r *Release) prepareChart(client helm.Client, hr *apiV1.HelmRelease) (chart
 	case hr.Spec.Customize != nil && hr.Spec.Customize.Key != "":
 		var err error
 
-		chartPath, err = chartsync.DownloadFile(hr.Spec.Customize.Key, r.config.ChartCache)
+		chartPath, err = chartsync.DownloadFile(hr.Spec.Customize.Key, r.config.ChartCache, hr.Spec.Customize.UseCache)
 		if err != nil {
 			return chart{}, nil, err
 		}
@@ -194,12 +194,12 @@ func (r *Release) prepareChart(client helm.Client, hr *apiV1.HelmRelease) (chart
 	case hr.Spec.Oss != nil:
 		var err error
 
-		provider,err := chartsync.NewProvider(hr.Spec.Oss, r.config.ChartCache)
+		provider, err := chartsync.NewProvider(hr.Spec.Oss, r.config.ChartCache)
 		if err != nil {
 			return chart{}, nil, err
 		}
 
-		chartPath, err = provider.DownloadFile()
+		chartPath, err = provider.DownloadFile(hr.Spec.Oss.UseCache)
 		if err != nil {
 			return chart{}, nil, err
 		}

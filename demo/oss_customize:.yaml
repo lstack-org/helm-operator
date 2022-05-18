@@ -8,5 +8,6 @@ spec:
   chart:
     customize:
       key: https://lstack-helm-chart.oss-cn-hangzhou.aliyuncs.com/release-V1.0.61/charts/aliyun-ccm-0.1.0.tgz
+      useCache: true
   values:
     replicaCount: 2
