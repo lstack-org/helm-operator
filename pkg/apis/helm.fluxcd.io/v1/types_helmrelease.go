@@ -167,6 +167,22 @@ type ChartSource struct {
 	*GitChartSource `json:",inline"`
 	// +optional
 	*RepoChartSource `json:",inline"`
+	Oss              *Oss       `json:"oss"`
+	Customize        *Customize `json:"customize"`
+}
+
+type Oss struct {
+	CloudProvider string `json:"cloudProvider"`
+	RegionId      string `json:"regionId"`
+	AckId         string `json:"ackId"`
+	AckSecret     string `json:"ackSecret"`
+	Bucket        string `json:"bucket"`
+	Key           string `json:"key"`
+	AckEncrypted  bool   `json:"ackEncrypted"`
+}
+
+type Customize struct {
+	Key string `json:"key" bson:"key" validate:"required"`
 }
 
 // GitChartSource describes a Helm chart sourced from Git.

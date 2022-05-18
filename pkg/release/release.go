@@ -178,6 +178,37 @@ func (r *Release) prepareChart(client helm.Client, hr *apiV1.HelmRelease) (chart
 			return chart{}, nil, err
 		}
 		changed = hr.Status.LastAttemptedRevision != revision
+	case hr.Spec.Customize != nil && hr.Spec.Customize.Key != "":
+		var err error
+
+		chartPath, err = chartsync.DownloadFile(hr.Spec.Customize.Key, r.config.ChartCache)
+		if err != nil {
+			return chart{}, nil, err
+		}
+
+		revision, err = client.GetChartRevision(chartPath)
+		if err != nil {
+			return chart{}, nil, err
+		}
+		changed = hr.Status.LastAttemptedRevision != revision
+	case hr.Spec.Oss != nil:
+		var err error
+
+		provider,err := chartsync.NewProvider(hr.Spec.Oss, r.config.ChartCache)
+		if err != nil {
+			return chart{}, nil, err
+		}
+
+		chartPath, err = provider.DownloadFile()
+		if err != nil {
+			return chart{}, nil, err
+		}
+
+		revision, err = client.GetChartRevision(chartPath)
+		if err != nil {
+			return chart{}, nil, err
+		}
+		changed = hr.Status.LastAttemptedRevision != revision
 	default:
 		return chart{}, nil, fmt.Errorf("could not find valid chart source configuration for release")
 	}

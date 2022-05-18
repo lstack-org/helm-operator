@@ -1,0 +1,19 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: nfs-haha
+  namespace: default
+spec:
+  appId: myapp
+  componentId: mycomp
+  chart:
+    oss:
+      cloudProvider: aliyun
+      regionId: oss-cn-hangzhou
+      ackSecret: ValJmtdK_P4yKktjRL-d4koeNVrNtuQWmEYNt0qjTrQ
+      ackId: DkHwuS-BO83usIN88SQgZzias18jJu9oShqpNDheCi8
+      bucket: lstack-helm-chart
+      key: dev/charts/nfs-server-v1.0.tgz
+      ackEncrypted: true
+  values:
+    replicaCount: 2

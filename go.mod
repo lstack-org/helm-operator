@@ -3,6 +3,8 @@ module github.com/fluxcd/helm-operator
 go 1.14
 
 require (
+	github.com/aliyun/aliyun-oss-go-sdk v2.2.3+incompatible
+	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/fluxcd/flux v1.17.2-0.20200121140732-3903cf8e71c3
 	github.com/fluxcd/helm-operator/pkg/install v0.0.0-00010101000000-000000000000
 	github.com/go-kit/kit v0.9.0
@@ -10,6 +12,7 @@ require (
 	github.com/google/go-cmp v0.4.0
 	github.com/gorilla/mux v1.7.3
 	github.com/helm/helm-2to3 v0.5.1
+	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.12+incompatible
 	github.com/ncabatoff/go-seq v0.0.0-20180805175032-b08ef85ed833
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.2.1

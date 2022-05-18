@@ -4,12 +4,29 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 
 	helmfluxv1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
 	"github.com/fluxcd/helm-operator/pkg/helm"
 )
+
+func DownloadFile(key,base string) (string, error) {
+	cachePath := filepath.Join(base, base64.URLEncoding.EncodeToString([]byte(key)))
+	res, err := http.Get(key)
+	if err != nil {
+		return "", ChartUnavailableError{err}
+	}
+
+	f, err := os.Create(cachePath)
+	if err != nil {
+		return "", ChartUnavailableError{err}
+	}
+	_, err = io.Copy(f, res.Body)
+	return cachePath, nil
+}
 
 // EnsureChartFetched returns the path to a downloaded chart, fetching
 // it first if necessary. It returns the (expected) path to the chart,
