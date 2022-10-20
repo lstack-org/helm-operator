@@ -7,7 +7,7 @@ import (
 	helmv2 "k8s.io/helm/pkg/helm"
 	"k8s.io/helm/pkg/proto/hapi/release"
 
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 type releaseResponse interface {

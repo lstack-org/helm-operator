@@ -6,7 +6,7 @@ import (
 	"helm.sh/helm/v3/pkg/chartutil"
 	"helm.sh/helm/v3/pkg/release"
 
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 func (h *HelmV3) UpgradeFromPath(chartPath string, releaseName string, values []byte,

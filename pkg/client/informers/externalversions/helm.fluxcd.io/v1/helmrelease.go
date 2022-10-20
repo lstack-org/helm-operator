@@ -21,10 +21,10 @@ package v1
 import (
 	time "time"
 
-	helmfluxcdiov1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
-	versioned "github.com/fluxcd/helm-operator/pkg/client/clientset/versioned"
-	internalinterfaces "github.com/fluxcd/helm-operator/pkg/client/informers/externalversions/internalinterfaces"
-	v1 "github.com/fluxcd/helm-operator/pkg/client/listers/helm.fluxcd.io/v1"
+	helmfluxcdiov1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	versioned "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned"
+	internalinterfaces "github.com/lstack-org/helm-operator/pkg/client/informers/externalversions/internalinterfaces"
+	v1 "github.com/lstack-org/helm-operator/pkg/client/listers/helm.fluxcd.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"

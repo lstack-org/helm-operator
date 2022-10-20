@@ -23,9 +23,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/fluxcd/helm-operator/pkg/client/clientset/versioned"
-	helmfluxcdio "github.com/fluxcd/helm-operator/pkg/client/informers/externalversions/helm.fluxcd.io"
-	internalinterfaces "github.com/fluxcd/helm-operator/pkg/client/informers/externalversions/internalinterfaces"
+	versioned "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned"
+	helmfluxcdio "github.com/lstack-org/helm-operator/pkg/client/informers/externalversions/helm.fluxcd.io"
+	internalinterfaces "github.com/lstack-org/helm-operator/pkg/client/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

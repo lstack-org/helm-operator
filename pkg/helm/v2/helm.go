@@ -17,7 +17,7 @@ import (
 	"k8s.io/helm/pkg/helm/helmpath"
 	"k8s.io/helm/pkg/tlsutil"
 
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 const VERSION = "v2"

@@ -6,5 +6,5 @@
 package helm_operator
 
 import (
-	_ "github.com/fluxcd/helm-operator/pkg/install"
+	_ "github.com/lstack-org/helm-operator/pkg/install"
 )

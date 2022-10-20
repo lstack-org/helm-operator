@@ -3,7 +3,7 @@ package v2
 import (
 	"k8s.io/helm/pkg/downloader"
 
-	"github.com/fluxcd/helm-operator/pkg/utils"
+	"github.com/lstack-org/helm-operator/pkg/utils"
 )
 
 func (h *HelmV2) DependencyUpdate(chartPath string) error {

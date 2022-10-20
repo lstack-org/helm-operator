@@ -10,8 +10,8 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	"sigs.k8s.io/yaml"
 
-	v1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	v1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 func TestComposeValues(t *testing.T) {

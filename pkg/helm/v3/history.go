@@ -4,7 +4,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/releaseutil"
 
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 func (h *HelmV3) History(releaseName string, opts helm.HistoryOptions) ([]*helm.Release, error) {

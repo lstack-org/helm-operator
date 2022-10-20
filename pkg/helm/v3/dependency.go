@@ -8,7 +8,7 @@ import (
 
 	"helm.sh/helm/v3/pkg/downloader"
 
-	"github.com/fluxcd/helm-operator/pkg/utils"
+	"github.com/lstack-org/helm-operator/pkg/utils"
 )
 
 func (h *HelmV3) DependencyUpdate(chartPath string) error {

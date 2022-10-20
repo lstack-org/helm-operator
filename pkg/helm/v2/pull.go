@@ -9,7 +9,7 @@ import (
 	"k8s.io/helm/pkg/repo"
 	"k8s.io/helm/pkg/urlutil"
 
-	"github.com/fluxcd/helm-operator/pkg/utils"
+	"github.com/lstack-org/helm-operator/pkg/utils"
 )
 
 func (h *HelmV2) Pull(ref, version, dest string) (string, error) {

@@ -20,18 +20,18 @@ import (
 
 	"github.com/fluxcd/flux/pkg/checkpoint"
 
-	"github.com/fluxcd/helm-operator/pkg/chartsync"
-	clientset "github.com/fluxcd/helm-operator/pkg/client/clientset/versioned"
-	ifinformers "github.com/fluxcd/helm-operator/pkg/client/informers/externalversions"
-	"github.com/fluxcd/helm-operator/pkg/helm"
-	helmv2 "github.com/fluxcd/helm-operator/pkg/helm/v2"
-	helmv3 "github.com/fluxcd/helm-operator/pkg/helm/v3"
-	v3 "github.com/fluxcd/helm-operator/pkg/helm/v3"
-	daemonhttp "github.com/fluxcd/helm-operator/pkg/http/daemon"
-	"github.com/fluxcd/helm-operator/pkg/operator"
-	"github.com/fluxcd/helm-operator/pkg/release"
-	"github.com/fluxcd/helm-operator/pkg/status"
-	"github.com/fluxcd/helm-operator/pkg/utils"
+	"github.com/lstack-org/helm-operator/pkg/chartsync"
+	clientset "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned"
+	ifinformers "github.com/lstack-org/helm-operator/pkg/client/informers/externalversions"
+	"github.com/lstack-org/helm-operator/pkg/helm"
+	helmv2 "github.com/lstack-org/helm-operator/pkg/helm/v2"
+	helmv3 "github.com/lstack-org/helm-operator/pkg/helm/v3"
+	v3 "github.com/lstack-org/helm-operator/pkg/helm/v3"
+	daemonhttp "github.com/lstack-org/helm-operator/pkg/http/daemon"
+	"github.com/lstack-org/helm-operator/pkg/operator"
+	"github.com/lstack-org/helm-operator/pkg/release"
+	"github.com/lstack-org/helm-operator/pkg/status"
+	"github.com/lstack-org/helm-operator/pkg/utils"
 )
 
 var (

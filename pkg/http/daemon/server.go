@@ -8,8 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/fluxcd/helm-operator/pkg/api"
-	transport "github.com/fluxcd/helm-operator/pkg/http"
+	"github.com/lstack-org/helm-operator/pkg/api"
+	transport "github.com/lstack-org/helm-operator/pkg/http"
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

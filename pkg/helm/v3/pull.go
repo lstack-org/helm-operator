@@ -11,7 +11,7 @@ import (
 	"helm.sh/helm/v3/pkg/helmpath"
 	"helm.sh/helm/v3/pkg/repo"
 
-	"github.com/fluxcd/helm-operator/pkg/utils"
+	"github.com/lstack-org/helm-operator/pkg/utils"
 )
 
 func (h *HelmV3) Pull(ref, version, dest string) (string, error) {

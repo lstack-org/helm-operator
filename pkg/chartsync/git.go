@@ -17,8 +17,8 @@ import (
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/tools/cache"
 
-	"github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
-	lister "github.com/fluxcd/helm-operator/pkg/client/listers/helm.fluxcd.io/v1"
+	"github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	lister "github.com/lstack-org/helm-operator/pkg/client/listers/helm.fluxcd.io/v1"
 )
 
 // Various (final) errors.

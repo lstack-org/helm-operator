@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	helmfluxcdiov1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	helmfluxcdiov1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

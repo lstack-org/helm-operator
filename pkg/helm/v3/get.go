@@ -4,7 +4,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/storage/driver"
 
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 type (

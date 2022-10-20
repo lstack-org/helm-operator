@@ -20,12 +20,12 @@ import (
 	"github.com/fluxcd/flux/pkg/git"
 	"github.com/go-kit/kit/log"
 
-	apiV1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
-	"github.com/fluxcd/helm-operator/pkg/chartsync"
-	v1client "github.com/fluxcd/helm-operator/pkg/client/clientset/versioned/typed/helm.fluxcd.io/v1"
-	"github.com/fluxcd/helm-operator/pkg/helm"
-	helmV3 "github.com/fluxcd/helm-operator/pkg/helm/v3"
-	"github.com/fluxcd/helm-operator/pkg/status"
+	apiV1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	"github.com/lstack-org/helm-operator/pkg/chartsync"
+	v1client "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned/typed/helm.fluxcd.io/v1"
+	"github.com/lstack-org/helm-operator/pkg/helm"
+	helmV3 "github.com/lstack-org/helm-operator/pkg/helm/v3"
+	"github.com/lstack-org/helm-operator/pkg/status"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 )

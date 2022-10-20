@@ -9,7 +9,7 @@ package lockedfile
 import (
 	"os"
 
-	"github.com/fluxcd/helm-operator/internal/lockedfile/internal/filelock"
+	"github.com/lstack-org/helm-operator/internal/lockedfile/internal/filelock"
 )
 
 func openFile(name string, flag int, perm os.FileMode) (*os.File, error) {

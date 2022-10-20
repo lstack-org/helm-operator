@@ -13,8 +13,8 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/yaml"
 
-	v1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	v1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 // managedByHelmRelease determines if the given `helm.Release` is

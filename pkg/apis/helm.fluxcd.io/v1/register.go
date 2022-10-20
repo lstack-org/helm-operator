@@ -5,7 +5,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	"github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io"
+	"github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io"
 )
 
 const Version = "v1"

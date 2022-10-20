@@ -3,7 +3,7 @@ package v2
 import (
 	helmv2 "k8s.io/helm/pkg/helm"
 
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 func (h *HelmV2) History(releaseName string, opts helm.HistoryOptions) ([]*helm.Release, error) {

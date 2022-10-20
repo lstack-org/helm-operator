@@ -1,7 +1,7 @@
 package status
 
 import (
-	v1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	v1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 )
 

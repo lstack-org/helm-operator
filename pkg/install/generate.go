@@ -12,7 +12,7 @@ import (
 
 	"github.com/shurcooL/vfsgen"
 
-	"github.com/fluxcd/helm-operator/pkg/install"
+	"github.com/lstack-org/helm-operator/pkg/install"
 )
 
 func main() {

@@ -3,7 +3,7 @@ package v3
 import (
 	"helm.sh/helm/v3/pkg/action"
 
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 func (h *HelmV3) Uninstall(releaseName string, opts helm.UninstallOptions) error {

@@ -19,9 +19,9 @@ limitations under the License.
 package fake
 
 import (
-	clientset "github.com/fluxcd/helm-operator/pkg/client/clientset/versioned"
-	helmv1 "github.com/fluxcd/helm-operator/pkg/client/clientset/versioned/typed/helm.fluxcd.io/v1"
-	fakehelmv1 "github.com/fluxcd/helm-operator/pkg/client/clientset/versioned/typed/helm.fluxcd.io/v1/fake"
+	clientset "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned"
+	helmv1 "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned/typed/helm.fluxcd.io/v1"
+	fakehelmv1 "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned/typed/helm.fluxcd.io/v1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

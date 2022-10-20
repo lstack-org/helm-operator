@@ -5,7 +5,7 @@ import (
 
 	helmv2 "k8s.io/helm/pkg/helm"
 
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 func (h *HelmV2) Get(releaseName string, opts helm.GetOptions) (*helm.Release, error) {

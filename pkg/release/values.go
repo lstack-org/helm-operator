@@ -12,8 +12,8 @@ import (
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"sigs.k8s.io/yaml"
 
-	v1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	v1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 // composeValues attempts to compose the final values for the given

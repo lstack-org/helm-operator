@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	v1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	v1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
 	"github.com/huaweicloud/huaweicloud-sdk-go-obs/obs"
 	"k8s.io/klog"
 	"os"

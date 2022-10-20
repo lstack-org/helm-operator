@@ -7,8 +7,8 @@ import (
 	"k8s.io/client-go/util/retry"
 	"k8s.io/utils/clock"
 
-	v1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
-	v1client "github.com/fluxcd/helm-operator/pkg/client/clientset/versioned/typed/helm.fluxcd.io/v1"
+	v1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	v1client "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned/typed/helm.fluxcd.io/v1"
 )
 
 // Clock is defined as a var so it can be stubbed during tests.

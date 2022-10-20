@@ -10,8 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
-	helmfluxv1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	helmfluxv1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 func DownloadFile(key, base string, useCache bool) (string, error) {

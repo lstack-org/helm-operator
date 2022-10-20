@@ -22,11 +22,11 @@ import (
 	kube "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/util/retry"
 
-	v1 "github.com/fluxcd/helm-operator/pkg/apis/helm.fluxcd.io/v1"
-	ifclientset "github.com/fluxcd/helm-operator/pkg/client/clientset/versioned"
-	v1client "github.com/fluxcd/helm-operator/pkg/client/clientset/versioned/typed/helm.fluxcd.io/v1"
-	iflister "github.com/fluxcd/helm-operator/pkg/client/listers/helm.fluxcd.io/v1"
-	"github.com/fluxcd/helm-operator/pkg/helm"
+	v1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"
+	ifclientset "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned"
+	v1client "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned/typed/helm.fluxcd.io/v1"
+	iflister "github.com/lstack-org/helm-operator/pkg/client/listers/helm.fluxcd.io/v1"
+	"github.com/lstack-org/helm-operator/pkg/helm"
 )
 
 type Updater struct {
