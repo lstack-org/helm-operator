@@ -35,6 +35,8 @@ prime
 stage
 
 
+.idea/
+
 # Specific to this project
 bin/
 _tmp/
