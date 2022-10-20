@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fluxcd/flux/pkg/resource"
 	"helm.sh/helm/v3/pkg/releaseutil"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

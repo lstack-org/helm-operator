@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fluxcd/flux/pkg/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -38,12 +37,6 @@ type HelmRelease struct {
 	Status HelmReleaseStatus `json:"status,omitempty"`
 }
 
-// ResourceID returns an ID made from the identifying parts of the
-// resource, as a convenience for Flux, which uses them
-// everywhere.
-func (hr HelmRelease) ResourceID() resource.ID {
-	return resource.MakeID(hr.Namespace, "HelmRelease", hr.Name)
-}
 
 // GetReleaseName returns the configured release name, or constructs and
 // returns one based on the namespace and name of the HelmRelease.

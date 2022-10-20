@@ -17,7 +17,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/fluxcd/flux/pkg/git"
 	"github.com/go-kit/kit/log"
 
 	apiV1 "github.com/lstack-org/helm-operator/pkg/apis/helm.fluxcd.io/v1"

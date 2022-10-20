@@ -18,13 +18,10 @@ import (
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog"
 
-	"github.com/fluxcd/flux/pkg/checkpoint"
-
 	"github.com/lstack-org/helm-operator/pkg/chartsync"
 	clientset "github.com/lstack-org/helm-operator/pkg/client/clientset/versioned"
 	ifinformers "github.com/lstack-org/helm-operator/pkg/client/informers/externalversions"
 	"github.com/lstack-org/helm-operator/pkg/helm"
-	helmv2 "github.com/lstack-org/helm-operator/pkg/helm/v2"
 	helmv3 "github.com/lstack-org/helm-operator/pkg/helm/v3"
 	v3 "github.com/lstack-org/helm-operator/pkg/helm/v3"
 	daemonhttp "github.com/lstack-org/helm-operator/pkg/http/daemon"
@@ -133,7 +130,7 @@ func init() {
 
 	versionedHelmRepositoryIndexes = fs.StringSlice("helm-repository-import", nil, "Targeted version and the path of the Helm repository index to import, i.e. v3:/tmp/v3/index.yaml,v2:/tmp/v2/index.yaml")
 
-	enabledHelmVersions = fs.StringSlice("enabled-helm-versions", []string{helmv2.VERSION, helmv3.VERSION}, "Helm versions supported by this operator instance")
+	enabledHelmVersions = fs.StringSlice("enabled-helm-versions", []string{helmv3.VERSION}, "Helm versions supported by this operator instance")
 }
 
 func main() {
@@ -211,20 +208,7 @@ func main() {
 	helmClients := &helm.Clients{}
 	for _, v := range *enabledHelmVersions {
 		versionedLogger := log.With(logger, "component", "helm", "version", v)
-
 		switch v {
-		case helmv2.VERSION:
-			helmClients.Add(helmv2.VERSION, helmv2.New(versionedLogger, kubeClient, helmv2.TillerOptions{
-				Host:        *tillerIP,
-				Port:        *tillerPort,
-				Namespace:   *tillerNamespace,
-				TLSVerify:   *tillerTLSVerify,
-				TLSEnable:   *tillerTLSEnable,
-				TLSKey:      *tillerTLSKey,
-				TLSCert:     *tillerTLSCert,
-				TLSCACert:   *tillerTLSCACert,
-				TLSHostname: *tillerTLSHostname,
-			}))
 		case helmv3.VERSION:
 			client := helmv3.New(versionedLogger, cfg)
 			helmClients.Add(helmv3.VERSION, client)
