@@ -10,8 +10,8 @@ spec:
     oss:
       cloudProvider: aliyun
       regionId: oss-cn-hangzhou
-      ackSecret: yPduHumYPQdz8qTWqecgiopXLPkHU9Iqe9PuvAvgih0=
-      ackId: /9U2wC/Z6fsN33MN5d5NL0duO9tCmsDA3h4B22mglGM=
+      ackSecret: xxx
+      ackId: xxx
       bucket: lstack-helm-chart
       key: dev/charts/nfs-server-v1.0.tgz
       ackEncrypted: true
